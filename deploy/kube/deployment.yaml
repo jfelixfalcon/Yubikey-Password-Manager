@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: password-manager-deployment
+  namespace: password-manager
+  labels:
+    app: password-manager
+    app.kubernetes.io/name: password-manager
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: password-manager
+
+  template:
+    metadata:
+      labels:
+        app: password-manager
+
+
+    spec:
+      containers:
+      - name: postgres
+        image: #TODO Add Created image on build step
+        command: ["/bin/sh", "-c"]
+        args: 
+          - chmod -R 0750 /var/lib/postgresql/data/; 
+            chown -R postgres /var/lib/postgresql/data/; 
+            su - postgres -c 'postgres -c config_file=/run/postgresql/postgresql.conf'
+
+        envFrom:
+        - secretRef:
+            name: password-manager-secret
+
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5432
+
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data/
+          subPath: data
+
+      volumes:
+      - name: data 
+        persistentVolumeClaim:
+          claimName: password-manager-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: password-manager-service
+  namespace: password-manager
+spec:
+  selector:
+    app: password-manager
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  externalIPs: [""] #TODO Add External IP's
+  type: LoadBalancer

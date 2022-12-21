@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: ykpm-pg:latest
+
+    restart: always
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+       - ../data:/var/lib/postgresql/data # TODO Update persistent volume dir
+    
+    environment:
+      POSTGRES_PASSWORD: "password" #TODO CHANGE PASSWORD
+

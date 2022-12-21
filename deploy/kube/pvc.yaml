@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: password-manager-pvc
+  namespace: password-manager
+spec:
+  storageClassName: "" #Add Storage Class Name
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
